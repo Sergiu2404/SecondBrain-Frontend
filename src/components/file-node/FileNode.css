@@ -1,0 +1,25 @@
+/* file / folder node */
+.file-node {
+    margin: 4px 0;
+}
+
+/* file / folder name */
+.file-node-label {
+    cursor: pointer;
+    padding: 4px 8px;
+    transition: background 0.3s;
+}
+
+.file-node-label:hover {
+    background-color: rgb(236, 234, 234);
+}
+
+.node-icon {
+    margin-right: 5px;
+}
+
+/* child nodes list */
+.file-node ul {
+    list-style: none;
+    padding-left: 5px;
+}
