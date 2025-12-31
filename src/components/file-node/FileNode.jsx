@@ -5,42 +5,82 @@ import {
   FiFolder,
   FiFileText,
 } from "react-icons/fi";
-import "./FileNode.css";
 
-const FileNode = ({ node }) => {
+const FileNode = ({
+  node,
+  openPathIds,
+  foundNodeId,
+  searchTrigger,
+  onRightClick
+}) => {
   const [isOpen, setIsOpen] = useState(false);
 
-  const handleOpenCloseChildren = (event) => {
-    event.preventDefault();
-    setIsOpen(!isOpen);
+  // track search res to know when to force the open
+  // const [lastFoundId, setLastFoundId] = useState(null);
+
+  const [lastTrigger, setLastTrigger] = useState(0);
+
+  // if searchTrigger changes, it means the user clicked Search
+  if (searchTrigger !== lastTrigger) {
+    setLastTrigger(searchTrigger);
+
+    // if current node in the path, force it to open
+    if (openPathIds?.includes(node.id)) {
+      setIsOpen(true);
+    }
+  }
+
+  // // if foundNodeId changes (new search performed) and node is in the path
+  // if (foundNodeId !== lastFoundId) {
+  //   setLastFoundId(foundNodeId);
+  //   if (openPathIds?.includes(node.id)) {
+  //     setIsOpen(true);
+  //   }
+  // }
+
+  const handleToggle = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (node.isFolder) {
+      setIsOpen(!isOpen);
+    }
   };
 
   return (
-    <li className="file-node">
-      <div onClick={handleOpenCloseChildren} className="file-node-label">
-        <span className="node-icon">
+    <li className="file-node" style={{ listStyleType: "none" }}>
+      <div
+        className={`file-node-label ${node.id === foundNodeId ? "found-node-highlight" : ""}`}
+        onClick={handleToggle}
+        onContextMenu={(e) => onRightClick(e, node.id)}
+        style={{
+          display: "flex",
+          alignItems: "center",
+          cursor: "pointer",
+          padding: "4px",
+        }}
+      >
+        <span className="node-icon" style={{ display: "flex", marginRight: "8px" }}>
           {node.isFolder ? (
-            isOpen ? (
-              <FiChevronDown />
-            ) : (
-              <FiChevronRight />
-            )
+            isOpen ? <FiChevronDown /> : <FiChevronRight />
           ) : (
-            <span className="chevron-placeholder" />
+            <span style={{ width: "16px" }} />
           )}
         </span>
-
-        <span className="node-icon">
+        <span className="node-icon" style={{ display: "flex", marginRight: "8px" }}>
           {node.isFolder ? <FiFolder /> : <FiFileText />}
         </span>
-
-        <strong>{node.name}</strong>
+        <span className="node-name">{node.name}</span>
       </div>
 
-      {isOpen && node.children && node.children.length > 0 && (
-        <ul style={{ marginLeft: "20px" }}>
+      {isOpen && node.children?.length >= 0 && (
+        <ul className="child-list" style={{ marginLeft: "20px", paddingLeft: "10px", listStyleType: "none" }}>
           {node.children.map((child) => (
-            <FileNode key={child.id} node={child} />
+            <FileNode 
+              key={child.id} 
+              node={child} 
+              onRightClick={onRightClick} 
+              {...{ openPathIds, foundNodeId, searchTrigger }} 
+            />
           ))}
         </ul>
       )}

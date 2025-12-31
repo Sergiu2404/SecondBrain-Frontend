@@ -23,3 +23,44 @@
     list-style: none;
     padding-left: 5px;
 }
+
+.child-list {
+    border-left: 1px solid #e0e0e0;
+    margin-left: 10px;
+    padding-left: 10px;
+    transition: all 0.2s ease-in-out;
+}
+
+.file-node-label {
+    display: flex;
+    align-items: center;
+    border-radius: 4px;
+    font-size: 14px;
+    color: #333;
+    user-select: none; /* prevent text selection on double click */
+}
+
+.found-node-highlight {
+    background-color: #fff3cd; /* Soft yellow */
+    border: 1px solid #ffeeba;
+    font-weight: 600;
+    color: #856404;
+    animation: pulse-highlight 2s infinite;
+}
+
+@keyframes pulse-highlight {
+    0% { box-shadow: 0 0 0 0px rgba(255, 193, 7, 0.4); }
+    70% { box-shadow: 0 0 0 6px rgba(255, 193, 7, 0); }
+    100% { box-shadow: 0 0 0 0px rgba(255, 193, 7, 0); }
+}
+
+.node-name {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.chevron-placeholder {
+    width: 16px;
+    display: inline-block;
+}
