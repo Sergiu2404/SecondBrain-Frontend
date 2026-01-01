@@ -28,6 +28,19 @@ const FileSystemPage = () => {
     y: 0,
     nodeId: null,
   });
+  // delete node confirmation modal
+  const [deleteModal, setDeleteModal] = useState({
+    visible: false,
+    nodeId: null,
+    nodeName: "",
+  });
+
+  // create folder modal state
+  const [createModal, setCreateModal] = useState({
+    visible: false,
+    parentId: null,
+  });
+  const [newFolderName, setNewFolderName] = useState("");
 
   // close menu at any left click
   useEffect(() => {
@@ -62,6 +75,36 @@ const FileSystemPage = () => {
     return rootLevelFileNodes;
   }, [files]); //recompute when file state changes
 
+  const openDeleteModal = () => {
+    const targetNode = files.find((f) => f.id === menuConfig.nodeId);
+    if (targetNode) {
+      setDeleteModal({
+        visible: true,
+        nodeId: targetNode.id,
+        nodeName: targetNode.name,
+      });
+    }
+    setMenuConfig({ ...menuConfig, visible: false }); // Close context menu
+  };
+
+  const openCreateModal = () => {
+    setCreateModal({ visible: true, parentId: menuConfig.nodeId });
+    setNewFolderName("");
+    setMenuConfig({ ...menuConfig, visible: false });
+  };
+
+  const confirmCreateFolder = () => {
+    if (!newFolderName.trim()) return;
+    const newFolder = {
+      id: Date.now(),
+      isFolder: true,
+      name: newFolderName,
+      parent: createModal.parentId,
+    };
+    setFiles((prev) => [...prev, newFolder]);
+    setCreateModal({ visible: false, parentId: null });
+  };
+
   const handleRightClick = (e, nodeId) => {
     e.preventDefault();
     e.stopPropagation();
@@ -73,21 +116,9 @@ const FileSystemPage = () => {
     });
   };
 
-  const handleAddFolder = () => {
-    const name = prompt("New folder name:");
-    if (!name) return;
-    const newFolder = {
-      id: Date.now(),
-      isFolder: true,
-      name,
-      parent: menuConfig.nodeId,
-    };
-    setFiles((prev) => [...prev, newFolder]);
-  };
+  const confirmDelete = () => {
+    const idToDelete = deleteModal.nodeId;
 
-  const handleDelete = () => {
-    const idToDelete = menuConfig.nodeId;
-    // delete node and all children
     const getChildIds = (parentId, allFiles) => {
       const children = allFiles.filter((f) => f.parent === parentId);
       let ids = children.map((c) => c.id);
@@ -99,30 +130,35 @@ const FileSystemPage = () => {
 
     const allRelatedIds = [idToDelete, ...getChildIds(idToDelete, files)];
     setFiles((prev) => prev.filter((file) => !allRelatedIds.includes(file.id)));
+
+    // reset state of the modal
+    setDeleteModal({ visible: false, nodeId: null, nodeName: "" });
   };
 
-  const handleSearch = (roots) => {
+  const handleSearch = () => {
     const parts = searchPath.toLowerCase().split("/").filter(Boolean);
+    if (parts.length < 2 || parts[0] !== "root") return;
 
-    let currentNodes = roots;
+    let currentNodes = treeData;
     const pathIds = [];
     let lastFoundNode = null;
 
     for (let i = 1; i < parts.length; i++) {
       const targetName = parts[i];
-      const found = currentNodes.find((node) => node.name === targetName);
-      if (!found) {
-        // error
-        return;
-      }
+      const found = currentNodes.find(
+        (node) => node.name.toLowerCase() === targetName
+      );
+      if (!found) return;
       pathIds.push(found.id);
       lastFoundNode = found;
       currentNodes = found.children || [];
     }
 
-    setFoundNodeId(lastFoundNode.id);
-    setOpenPathIds([...pathIds]);
-    setSearchTrigger((prev) => prev + 1); // incrementing every time search is successful
+    if (lastFoundNode) {
+      setFoundNodeId(lastFoundNode.id);
+      setOpenPathIds([...pathIds]);
+      setSearchTrigger((prev) => prev + 1);
+    }
   };
 
   return (
@@ -161,11 +197,65 @@ const FileSystemPage = () => {
           className="custom-context-menu"
           style={{ top: menuConfig.y, left: menuConfig.x }}
         >
-          <div className="menu-item" onClick={handleAddFolder}>
+          <div className="menu-item" onClick={openCreateModal}>
             Add Folder
           </div>
-          <div className="menu-item delete" onClick={handleDelete}>
+          <div className="menu-item delete" onClick={openDeleteModal}>
             Delete
+          </div>
+        </div>
+      )}
+
+      {/* create folder modal */}
+      {createModal.visible && (
+        <div className="modal-overlay">
+          <div className="modal-content">
+            <h4>New Folder</h4>
+            <input
+              className="modal-input"
+              autoFocus
+              value={newFolderName}
+              onChange={(e) => setNewFolderName(e.target.value)}
+              placeholder="Folder name"
+              onKeyDown={(e) => e.key === "Enter" && confirmCreateFolder()}
+            />
+            <div className="modal-actions">
+              <button
+                className="cancel-btn"
+                onClick={() => setCreateModal({ visible: false })}
+              >
+                Cancel
+              </button>
+              <button
+                className="confirm-btn create"
+                onClick={confirmCreateFolder}
+              >
+                Create
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* delete confirmation modal */}
+      {deleteModal.visible && (
+        <div className="modal-overlay">
+          <div className="modal-content">
+            <h4>Delete "{deleteModal.nodeName}"?</h4>
+            <p>
+              This action cannot be undone and will delete all nested items.
+            </p>
+            <div className="modal-actions">
+              <button
+                className="cancel-btn"
+                onClick={() => setDeleteModal({ visible: false })}
+              >
+                Keep Folder
+              </button>
+              <button className="confirm-btn delete" onClick={confirmDelete}>
+                Delete Everything
+              </button>
+            </div>
           </div>
         </div>
       )}

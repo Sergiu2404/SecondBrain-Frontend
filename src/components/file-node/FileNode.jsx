@@ -14,10 +14,6 @@ const FileNode = ({
   onRightClick
 }) => {
   const [isOpen, setIsOpen] = useState(false);
-
-  // track search res to know when to force the open
-  // const [lastFoundId, setLastFoundId] = useState(null);
-
   const [lastTrigger, setLastTrigger] = useState(0);
 
   // if searchTrigger changes, it means the user clicked Search
@@ -29,14 +25,6 @@ const FileNode = ({
       setIsOpen(true);
     }
   }
-
-  // // if foundNodeId changes (new search performed) and node is in the path
-  // if (foundNodeId !== lastFoundId) {
-  //   setLastFoundId(foundNodeId);
-  //   if (openPathIds?.includes(node.id)) {
-  //     setIsOpen(true);
-  //   }
-  // }
 
   const handleToggle = (e) => {
     e.preventDefault();
