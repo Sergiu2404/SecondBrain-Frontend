@@ -1,10 +1,6 @@
 import React, { useState } from "react";
-import {
-  FiChevronDown,
-  FiChevronRight,
-  FiFolder,
-  FiFileText,
-} from "react-icons/fi";
+import { NodeIcon } from "../file-system/node-icon/NodeIcon";
+import { NodeChildren } from "../file-system/node-children/NodeChildren";
 
 const FileNode = ({
   node,
@@ -14,11 +10,11 @@ const FileNode = ({
   onRightClick
 }) => {
   const [isOpen, setIsOpen] = useState(false);
-  const [lastTrigger, setLastTrigger] = useState(0);
+  const [prevTrigger, setPrevTrigger] = useState(searchTrigger);
 
   // if searchTrigger changes, it means the user clicked Search
-  if (searchTrigger !== lastTrigger) {
-    setLastTrigger(searchTrigger);
+  if (searchTrigger !== prevTrigger) {
+    setPrevTrigger(searchTrigger);
 
     // if current node in the path, force it to open
     if (openPathIds?.includes(node.id)) {
@@ -34,10 +30,12 @@ const FileNode = ({
     }
   };
 
+  const isHighlighted = node.id === foundNodeId;
+
   return (
     <li className="file-node" style={{ listStyleType: "none" }}>
       <div
-        className={`file-node-label ${node.id === foundNodeId ? "found-node-highlight" : ""}`}
+        className={`file-node-label ${isHighlighted ? "found-node-highlight" : ""}`}
         onClick={handleToggle}
         onContextMenu={(e) => onRightClick(e, node.id)}
         style={{
@@ -47,7 +45,8 @@ const FileNode = ({
           padding: "4px",
         }}
       >
-        <span className="node-icon" style={{ display: "flex", marginRight: "8px" }}>
+        <NodeIcon isFolder={node.isFolder} isOpen={isOpen} />
+        {/* <span className="node-icon" style={{ display: "flex", marginRight: "8px" }}>
           {node.isFolder ? (
             isOpen ? <FiChevronDown /> : <FiChevronRight />
           ) : (
@@ -56,11 +55,18 @@ const FileNode = ({
         </span>
         <span className="node-icon" style={{ display: "flex", marginRight: "8px" }}>
           {node.isFolder ? <FiFolder /> : <FiFileText />}
-        </span>
+        </span> */}
         <span className="node-name">{node.name}</span>
       </div>
 
-      {isOpen && node.children?.length >= 0 && (
+      <NodeChildren 
+        node={node} 
+        isOpen={isOpen} 
+        onRightClick={onRightClick} 
+        searchProps={{ openPathIds, foundNodeId, searchTrigger }} 
+      />
+        
+      {/* {isOpen && node.children?.length >= 0 && (
         <ul className="child-list" style={{ marginLeft: "20px", paddingLeft: "10px", listStyleType: "none" }}>
           {node.children.map((child) => (
             <FileNode 
@@ -71,7 +77,7 @@ const FileNode = ({
             />
           ))}
         </ul>
-      )}
+      )} */}
     </li>
   );
 };
