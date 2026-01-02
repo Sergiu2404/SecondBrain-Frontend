@@ -1,58 +1,4 @@
-.file-system-page {
-    padding: 20px;
-    display: flex;
-    flex-direction: column;
-    margin: 0 auto;
-    max-width: 800px;
-    background-color: #fafafa;
-    border-left: 1px solid #ddd;
-    border-right: 1px solid #ddd;
-}
-
-.file-system-container h3 {
-    margin-bottom: 16px;
-}
- 
-/* container aournd file system tree */
-.file-system-container {
-    background-color: white;
-    padding: 12px 16px;
-}
-
-/* root folders / files list */
-.root-list {
-    padding-left: 0;
-    list-style: none;
-    margin: 0;
-}
-
-.file-system-container {
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-    min-height: 200px;
-}
-
-/* status messages */
-.search-error, .search-success {
-    font-size: 13px;
-    padding: 8px;
-    border-radius: 4px;
-    margin-top: 12px;
-}
-
-.search-error {
-    background-color: #f8d7da;
-    border: 1px solid #f5c6cb;
-}
-
-.search-success {
-    background-color: #d4edda;
-    border: 1px solid #c3e6cb;
-}
-
-
-deletion modal
+/* deletion modal */
 /* overlay: dims the background */
 .modal-overlay {
     position: fixed;
@@ -113,4 +59,3 @@ deletion modal
 
 .cancel-btn { background: #f0f0f0; color: #444; }
 .confirm-btn.create { background: #007bff; color: white; }
-.confirm-btn.delete { background: #dc3545; color: white; }
