@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 import "./FileSystemPage.css";
 import FileNode from "../../components/file-node/FileNode";
@@ -20,6 +20,12 @@ const FileSystemPage = () => {
     return buildTree(files);
   }, [files]); //recompute when files state changes
 
+  const fileInputRef = useRef(null);
+
+  const handleAddFile = () => {
+    fileInputRef.current.click();
+  };
+
   const {
     searchPath,
     setSearchPath,
@@ -37,6 +43,7 @@ const FileSystemPage = () => {
     createModal,
     setCreateModal,
     handleRightClick,
+    handleFileSelected,
     confirmCreateFolder,
     confirmDelete,
   } = useFileSystemActions(files, setFiles);
@@ -52,7 +59,11 @@ const FileSystemPage = () => {
   return (
     <div className="file-system-page">
       <h3>Your documents</h3>
-      <SearchFileHeader searchPath={searchPath} setSearchPath={setSearchPath} onSearch={handleSearch} />
+      <SearchFileHeader
+        searchPath={searchPath}
+        setSearchPath={setSearchPath}
+        onSearch={handleSearch}
+      />
 
       <div className="file-system-container">
         <ul className="root-list" style={{ padding: 0 }}>
@@ -72,6 +83,7 @@ const FileSystemPage = () => {
         onAddFolder={() =>
           setCreateModal({ visible: true, parentId: menuConfig.nodeId })
         }
+        onAddFile={handleAddFile}
         onDelete={() => {
           const target = files.find((f) => f.id === menuConfig.nodeId);
           setDeleteModal({
@@ -93,6 +105,13 @@ const FileSystemPage = () => {
         nodeName={deleteModal.nodeName}
         onCancel={() => setDeleteModal({ visible: false })}
         onConfirm={confirmDelete}
+      />
+
+      <input
+        type="file"
+        ref={fileInputRef}
+        style={{ display: "none" }}
+        onChange={handleFileSelected}
       />
     </div>
   );

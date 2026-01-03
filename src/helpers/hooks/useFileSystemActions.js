@@ -24,6 +24,27 @@ export const useFileSystemActions = (files, setFiles) => {
     setMenuConfig({ visible: true, x: e.pageX, y: e.pageY, nodeId });
   };
 
+  const handleFileSelected = (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+
+  setFiles(prev => [
+    ...prev,
+    {
+      id: Date.now(),
+      isFolder: false,
+      name: file.name,
+      parent: menuConfig.nodeId,
+      file,
+      type: file.type,
+      size: file.size
+    }
+  ]);
+
+  e.target.value = ""; // reset input
+};
+
+
   const confirmCreateFolder = (name) => {
     const newFolder = {
       id: Date.now(),
@@ -53,6 +74,7 @@ export const useFileSystemActions = (files, setFiles) => {
     createModal,
     setCreateModal,
     handleRightClick,
+    handleFileSelected,
     confirmCreateFolder,
     confirmDelete,
   };

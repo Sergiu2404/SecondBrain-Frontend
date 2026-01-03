@@ -6,6 +6,13 @@ export const firstLevelFiles = [
   { id: 5, isFolder: true, name: "folder5", parent: 2 },
   { id: 6, isFolder: true, name: "folder6", parent: 3 },
   { id: 7, isFolder: true, name: "folder7", parent: 3 },
+  // new Node({ id: 1, isFolder: true, name: "folder1", parent: null }),
+  // new Node({ id: 2, isFolder: true, name: "folder2", parent: null }),
+  // new Node({ id: 3, isFolder: true, name: "folder3", parent: 1 }),
+  // new Node({ id: 4, isFolder: true, name: "folder4", parent: 2 }),
+  // new Node({ id: 5, isFolder: true, name: "folder5", parent: 2 }),
+  // new Node({ id: 6, isFolder: true, name: "folder6", parent: 3 }),
+  // new Node({ id: 7, isFolder: true, name: "folder7", parent: 3 }),
 ];
 
 export const buildTree = (files) => {

@@ -45,17 +45,7 @@ const FileNode = ({
           padding: "4px",
         }}
       >
-        <NodeIcon isFolder={node.isFolder} isOpen={isOpen} />
-        {/* <span className="node-icon" style={{ display: "flex", marginRight: "8px" }}>
-          {node.isFolder ? (
-            isOpen ? <FiChevronDown /> : <FiChevronRight />
-          ) : (
-            <span style={{ width: "16px" }} />
-          )}
-        </span>
-        <span className="node-icon" style={{ display: "flex", marginRight: "8px" }}>
-          {node.isFolder ? <FiFolder /> : <FiFileText />}
-        </span> */}
+        <NodeIcon node={node} isFolder={node.isFolder} isOpen={isOpen} />
         <span className="node-name">{node.name}</span>
       </div>
 
@@ -65,19 +55,6 @@ const FileNode = ({
         onRightClick={onRightClick} 
         searchProps={{ openPathIds, foundNodeId, searchTrigger }} 
       />
-        
-      {/* {isOpen && node.children?.length >= 0 && (
-        <ul className="child-list" style={{ marginLeft: "20px", paddingLeft: "10px", listStyleType: "none" }}>
-          {node.children.map((child) => (
-            <FileNode 
-              key={child.id} 
-              node={child} 
-              onRightClick={onRightClick} 
-              {...{ openPathIds, foundNodeId, searchTrigger }} 
-            />
-          ))}
-        </ul>
-      )} */}
     </li>
   );
 };
