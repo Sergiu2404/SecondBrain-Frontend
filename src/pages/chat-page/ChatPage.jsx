@@ -1,40 +1,26 @@
 import { useEffect, useRef, useState } from "react";
 import "./ChatPage.css";
+import { useDispatch, useSelector } from "react-redux";
+import { addUserMessage, sendMessage } from "../../state/chat/chatSlice";
 
 export default function ChatPage() {
-  const [messages, setMessages] = useState([
-    { id: 1, role: "assistant", text: "Hello! How can I help you today?" },
-  ]);
+  const dispatch = useDispatch();
+  const messages = useSelector(state => state.chat.messages);
+
   const [input, setInput] = useState("");
   const messagesEndRef = useRef(null);
 
-  const handleSend = () => {
+  const handleSend = async () => {
     if (!input.trim()) return;
 
-    setMessages((prev) => [
-      ...prev,
-      { id: prev.length + 1, role: "user", text: input },
-    ]);
+    dispatch(addUserMessage(input));
+    dispatch(sendMessage(input));
     setInput("");
-
-    setTimeout(() => {
-      setMessages((prev) => [
-        ...prev,
-        { id: prev.length + 1, role: "assistant", text: "This is a response." },
-      ]);
-    }, 500);
   };
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
-
-  const handleKeyPress = (event) => {
-    if (event.key === "Enter" && !event.shiftKey) {
-      event.preventDefault();
-      handleSend();
-    }
-  };
 
   return (
     <div className="chat-page">
@@ -54,7 +40,7 @@ export default function ChatPage() {
         <textarea
           value={input}
           onChange={(e) => setInput(e.target.value)}
-          onKeyPress={handleKeyPress}
+          onKeyPress={(e) => e.key === "Enter" && !e.shiftKey && handleSend()}
           placeholder="Type your message..."
         />
         <button onClick={handleSend}>Send</button>
