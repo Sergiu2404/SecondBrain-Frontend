@@ -28,6 +28,17 @@
   gap: 6rem;
 }
 
+button.nav-link {
+  background: none;
+  border: none;
+  padding: 0;
+  margin: 0;
+  font: inherit;
+  color: #ffffff;
+  cursor: pointer;
+}
+
+
 .nav-link {
   text-decoration: none;
   color: #ffffff;
@@ -37,6 +48,15 @@
 .nav-link:hover {
   color: rgb(223, 220, 220);
 }
+
+.nav-link:focus {
+  outline: none;
+}
+
+.nav-link:focus-visible {
+  outline: none;
+}
+
 
 .menu-btn {
   background: none;

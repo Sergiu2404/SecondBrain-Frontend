@@ -2,20 +2,47 @@ import { useEffect, useRef, useState } from "react";
 import "./ChatPage.css";
 import { useDispatch, useSelector } from "react-redux";
 import { addUserMessage, sendMessage } from "../../state/chat/chatSlice";
+import { useNavigate, useParams } from "react-router-dom";
+import { createNewChat } from "../../data/services/chat/ChatService";
+
+const EMPTY_ARRAY = [];
 
 export default function ChatPage() {
+  const { chatId } = useParams();
+
   const dispatch = useDispatch();
-  const messages = useSelector(state => state.chat.messages);
+  const messages = useSelector(
+    (state) => state.chat.messagesByChat[chatId] ?? []
+  );
 
   const [input, setInput] = useState("");
   const messagesEndRef = useRef(null);
 
-  const handleSend = async () => {
-    if (!input.trim()) return;
+  const navigate = useNavigate();
 
-    dispatch(addUserMessage(input));
-    dispatch(sendMessage(input));
+  const handleSend = () => {
+    if (!input.trim()) return;
+    if (!chatId) return;
+
+    dispatch(addUserMessage({ chatId, content: input }));
+    dispatch(sendMessage({ chatId, content: input }));
+
     setInput("");
+  };
+
+  const handleCreateNewChat = async () => {
+    try {
+      const createdChat = await createNewChat();
+
+      if (!createdChat.id) {
+        console.error("Chat creation failed");
+        return;
+      }
+
+      navigate(`/chat/${createdChat.id}`);
+    } catch (err) {
+      console.error("Failed to create chat:", err);
+    }
   };
 
   useEffect(() => {
@@ -25,12 +52,12 @@ export default function ChatPage() {
   return (
     <div className="chat-page">
       <div className="chat-container">
-        {messages.map((msg) => (
+        {messages.map((msg, idx) => (
           <div
-            key={msg.id}
+            key={idx}
             className={`message ${msg.role === "user" ? "user" : "assistant"}`}
           >
-            {msg.text}
+            {msg.content}
           </div>
         ))}
         <div ref={messagesEndRef} />
@@ -40,11 +67,20 @@ export default function ChatPage() {
         <textarea
           value={input}
           onChange={(e) => setInput(e.target.value)}
-          onKeyPress={(e) => e.key === "Enter" && !e.shiftKey && handleSend()}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" && !e.shiftKey) {
+              e.preventDefault();
+              handleSend();
+            }
+          }}
           placeholder="Type your message..."
         />
         <button onClick={handleSend}>Send</button>
       </div>
+
+      <button className="create-new-chat" onClick={handleCreateNewChat}>
+        Open New Chat
+      </button>
     </div>
   );
 }

@@ -1,48 +1,77 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import { sendMessageAPI } from "../../data/services/chat/ChatService";
+import {
+  getLatestChat,
+  sendMessageAPI,
+  fetchMessagesByChatAPI,
+  createNewChat,
+} from "../../data/services/chat/ChatService";
 
 export const sendMessage = createAsyncThunk(
   "chat/sendMessage",
-  async (messageText) => {
-    const response = await sendMessageAPI(messageText);
-    return response;
+  async ({ content, chatId }) => {
+    console.log(`content ${content}, chat id: ${chatId}`);
+    const response = await sendMessageAPI(content, chatId);
+    return { chatId, content: response };
+  }
+);
+
+export const fetchLatestChat = createAsyncThunk(
+  "chat/fetchLatestChat",
+  async () => {
+    return await getLatestChat();
+  }
+);
+
+export const fetchMessagesByChat = createAsyncThunk(
+  "chat/fetchMessagesByChat",
+  async (chatId) => {
+    const messages = await fetchMessagesByChatAPI(chatId);
+    return { chatId, messages: await messages };
+  }
+);
+
+export const openLatestChat = createAsyncThunk(
+  "chat/openLatestChat",
+  async (_, { dispatch }) => {
+    let chat = await getLatestChat();
+
+    if (!chat || !chat.id) {
+      chat = await createNewChat();
+    }
+
+    dispatch(fetchMessagesByChat(chat.id));
+    return chat;
   }
 );
 
 const chatSlice = createSlice({
   name: "chat",
   initialState: {
-    messages: [
-      {
-        id: 1,
-        role: "assistant",
-        text: "Hello! How can I help you today?",
-        chatId: 1,
-      },
-    ],
+    messagesByChat: {},
+    chats: {},
+    currentChatId: null,
+    latestChat: null,
     status: "idle",
     error: null,
   },
   reducers: {
     addUserMessage(state, action) {
-      state.messages.push({
-        id: state.messages.length + 1,
-        role: "user",
-        text: action.payload,
-        chatId: 1
-      });
-      state.messages.push({
-        id: state.messages.length + 1,
-        role: "assistant",
-        text: "Typing...",
-        chatId: 1
-      });
+      const { chatId, content } = action.payload;
+
+      if (!state.messagesByChat[chatId]) {
+        state.messagesByChat[chatId] = [];
+      }
+
+      state.messagesByChat[chatId].push(
+        { role: "user", content },
+        { role: "assistant", content: "Typing..." }
+      );
     },
-    replaceLastMessage(state, action) {
-      state.messages[state.messages.length - 1] = {
-        ...state.messages[state.messages.length - 1],
-        text: action.payload,
-      };
+    initChat(state, action) {
+      const chatId = action.payload;
+      if (!state.messagesByChat[chatId]) {
+        state.messagesByChat[chatId] = [];
+      }
     },
   },
   extraReducers: (builder) => {
@@ -51,18 +80,28 @@ const chatSlice = createSlice({
         state.status = "sending";
       })
       .addCase(sendMessage.fulfilled, (state, action) => {
+        const { chatId, content } = action.payload;
+
+        const msgs = state.messagesByChat[chatId];
+        msgs[msgs.length - 1].content = content;
         state.status = "idle";
-        state.messages[state.messages.length - 1] = {
-          ...state.messages[state.messages.length - 1],
-          text: action.payload,
-        };
       })
-      .addCase(sendMessage.rejected, (state, action) => {
+      .addCase(sendMessage.rejected, (state) => {
         state.status = "error";
-        state.messages[state.messages.length - 1] = {
-          ...state.messages[state.messages.length - 1],
-          text: action.payload,
-        };
+      })
+      .addCase(fetchLatestChat.fulfilled, (state, action) => {
+        state.latestChat = action.payload;
+        state.currentChatId = action.payload.id;
+        state.chats[action.payload.id] = action.payload;
+      })
+      .addCase(fetchMessagesByChat.fulfilled, (state, action) => {
+        state.messagesByChat[action.payload.chatId] =
+          action.payload.messages;
+      })
+      .addCase(openLatestChat.fulfilled, (state, action) => {
+        state.latestChat = action.payload;
+        state.currentChatId = action.payload.id;
+        state.chats[action.payload.id] = action.payload;
       });
   },
 });

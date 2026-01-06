@@ -74,3 +74,17 @@
 .chat-input-area button:hover {
   background-color: #0056b3;
 }
+
+.create-new-chat {
+  margin: 30px auto;
+  padding: 10px;
+  border: none;
+  background: none;
+  text-decoration: underline;
+  width: 120px;
+}
+.create-new-chat:hover {
+  background: none;
+  color: rgb(65, 65, 65);
+  cursor: pointer;
+}

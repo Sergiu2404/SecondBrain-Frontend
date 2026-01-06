@@ -1,10 +1,26 @@
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 import "./Header.css";
 import { useState } from "react";
 import { GiHamburgerMenu } from "react-icons/gi";
+import { useSelector } from "react-redux";
 
 export default function Header() {
   const [isHistoyMenuOpen, setIsHistoryMenuOpen] = useState(false);
+
+  const currentChatId = useSelector(
+    (state) => state.chat.currentChatId
+  );
+
+  const navigate = useNavigate();
+
+  const handleNavigateToChat = async () => {
+    if (!currentChatId) {
+      console.warn("No active chat yet");
+      return;
+    }
+
+    navigate(`/chat/${currentChatId}`);
+  }
 
   return (
     <header className="header">
@@ -19,9 +35,10 @@ export default function Header() {
         </div>
 
         <nav className="nav">
-          <NavLink to="/chat" className="nav-link">
+          {/* navlink navigates instantly, button replaces it to navigate after chat creation fulfills */}
+          <button className="nav-link" onClick={handleNavigateToChat}>
             Assistant
-          </NavLink>
+          </button>
           <NavLink to="/files" className="nav-link">
             Files
           </NavLink>
