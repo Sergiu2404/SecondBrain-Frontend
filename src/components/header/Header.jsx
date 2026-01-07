@@ -2,16 +2,20 @@ import { NavLink, useNavigate } from "react-router-dom";
 import "./Header.css";
 import { useState } from "react";
 import { GiHamburgerMenu } from "react-icons/gi";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchChats } from "../../state/chat/chatSlice";
 
 export default function Header() {
-  const [isHistoyMenuOpen, setIsHistoryMenuOpen] = useState(false);
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   const currentChatId = useSelector(
     (state) => state.chat.currentChatId
   );
 
-  const navigate = useNavigate();
+  const chatsList = useSelector((state) => state.chat.chatsList || []);
+
+  const [isHistoyMenuOpen, setIsHistoryMenuOpen] = useState(false);
 
   const handleNavigateToChat = async () => {
     if (!currentChatId) {
@@ -22,13 +26,24 @@ export default function Header() {
     navigate(`/chat/${currentChatId}`);
   }
 
+  const toggleSideMenu = () => {
+    if (!isHistoyMenuOpen) {
+      dispatch(fetchChats());
+    }
+    setIsHistoryMenuOpen(!isHistoyMenuOpen);
+  }
+
+  const sortedChats = [...chatsList].sort(
+    (a, b) => new Date(b.created_at) - new Date(a.created_at)
+  );
+
   return (
     <header className="header">
       <div className="header-container">
         <div className="header-left">
           <button
             className="menu-btn"
-            onClick={() => setIsHistoryMenuOpen(true)}
+            onClick={toggleSideMenu}
           >
             <GiHamburgerMenu size={24} />
           </button>
@@ -55,11 +70,23 @@ export default function Header() {
         >
           x
         </button>
-        <h3>Chat history</h3>
-        <ul>
-          <li>Chat 1</li>
-          <li>Chat 2</li>
-          <li>Chat 3</li>
+        <h3 className="chat-history-side-menu-headline">Chat history</h3>
+        <ul className="history-chats-list">
+          {sortedChats.map((chat) => (
+            <li 
+            key={chat.id}
+            className={`history-chat-link ${chat.id === currentChatId ? "active" : ""}`}
+            onClick={() => {
+              navigate(`/chat/${chat.id}`);
+              setIsHistoryMenuOpen(false);
+            }}
+            >
+              {chat.title || `Chat ${chat.id.substring(0, 5)}`}
+              <span className="chat-date">
+                {new Date(chat.created_at).toLocaleDateString()}
+              </span>
+            </li>
+          ))}
         </ul>
       </div>
 

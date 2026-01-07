@@ -1,4 +1,4 @@
-const BASE_URL = "http://localhost:8000/api/chat"
+const BASE_URL = "http://localhost:8000/api/chats"
 
 export async function sendMessageAPI(messageText, chatId) {
   try {
@@ -43,6 +43,25 @@ export async function getLatestChat() {
   try {
     const response = await fetch(`${BASE_URL}/latest-chat`);
 
+    if (response.status != 200) {
+      return null;
+    }
+    if (!response.ok) {
+      console.warn(`Latest chat not found or server error: ${response.status}`);
+      return null;
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error("Backend is unreachable:", error);
+    return null;
+  }
+}
+
+export async function fetchMessagesByChatAPI(chatId) {
+  try {
+    const response = await fetch(`${BASE_URL}/chat-messages/${chatId}`);
+
     if (!response.ok) {
       throw new Error(`Server error: ${response.status}`);
     }
@@ -54,9 +73,9 @@ export async function getLatestChat() {
   }
 }
 
-export async function fetchMessagesByChatAPI(chatId) {
+export async function fetchChatsAPI() {
   try {
-    const response = await fetch(`${BASE_URL}/chat-messages/${chatId}`);
+    const response = await fetch(`${BASE_URL}`);
 
     if (!response.ok) {
       throw new Error(`Server error: ${response.status}`);

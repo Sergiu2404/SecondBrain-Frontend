@@ -4,6 +4,7 @@ import {
   sendMessageAPI,
   fetchMessagesByChatAPI,
   createNewChat,
+  fetchChatsAPI,
 } from "../../data/services/chat/ChatService";
 
 export const sendMessage = createAsyncThunk(
@@ -26,7 +27,16 @@ export const fetchMessagesByChat = createAsyncThunk(
   "chat/fetchMessagesByChat",
   async (chatId) => {
     const messages = await fetchMessagesByChatAPI(chatId);
-    return { chatId, messages: await messages };
+    return { chatId, messages: messages };
+  }
+);
+
+export const fetchChats = createAsyncThunk(
+  "chat/fetchChats",
+  async () => {
+    const chats = await fetchChatsAPI();
+    console.log(chats);
+    return { chats: chats }
   }
 );
 
@@ -38,8 +48,10 @@ export const openLatestChat = createAsyncThunk(
     if (!chat || !chat.id) {
       chat = await createNewChat();
     }
+    if (chat && chat.id) {
+      dispatch(fetchMessagesByChat(chat.id));
+    }
 
-    dispatch(fetchMessagesByChat(chat.id));
     return chat;
   }
 );
@@ -49,6 +61,7 @@ const chatSlice = createSlice({
   initialState: {
     messagesByChat: {},
     chats: {},
+    chatsList: [],
     currentChatId: null,
     latestChat: null,
     status: "idle",
@@ -99,10 +112,29 @@ const chatSlice = createSlice({
           action.payload.messages;
       })
       .addCase(openLatestChat.fulfilled, (state, action) => {
-        state.latestChat = action.payload;
-        state.currentChatId = action.payload.id;
-        state.chats[action.payload.id] = action.payload;
-      });
+        const chat = action.payload;
+
+        state.latestChat = chat;
+        state.currentChatId = chat.id;
+        state.chats[chat.id] = chat;
+
+        const exists = state.chatsList.find(c => c.id == chat.id);
+        if (!exists) {
+          state.chatsList.unshift(chat);
+        }
+      })
+      .addCase(fetchChats.fulfilled, (state, action) => {
+        state.status = "idle";
+
+        const chats = action.payload?.chats || [];
+        state.chatsList = chats;
+
+        chats.forEach((chat) => {
+          if (chat && chat.id) {
+            state.chats[chat.id] = chat;
+          }
+        })
+      })
   },
 });
 

@@ -6,7 +6,7 @@ import FileSystemPage from "./pages/file-system-page/FileSystemPage";
 import Test from "./Test";
 import { useDispatch } from "react-redux";
 import { useEffect } from "react";
-import { openLatestChat } from "./state/chat/chatSlice";
+import { fetchChats, openLatestChat } from "./state/chat/chatSlice";
 
 function App() {
 
@@ -14,6 +14,7 @@ function App() {
 
   useEffect(() => {
     dispatch(openLatestChat());
+    dispatch(fetchChats());
   }, [dispatch]);
 
   return (

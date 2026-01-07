@@ -83,6 +83,11 @@ button.nav-link {
   transition: transform 0.3s ease;
 }
 
+.chat-history-side-menu-headline {
+  font-size: 30px;
+  color: white;
+}
+
 .side-menu.open {
   transform: translateX(0);
 }
@@ -94,6 +99,95 @@ button.nav-link {
   background-color: rgb(247, 74, 74);
   cursor: pointer;
 }
+
+
+/* Chats list */
+.history-chats-list {
+  padding: 0;
+  margin-top: 30px;
+  overflow-y: auto;
+  list-style: none;
+  flex-grow: 1;
+}
+
+.history-chats-list::-webkit-scrollbar {
+  width: 8px;
+}
+
+.history-chats-list::-webkit-scrollbar-track {
+  background: rgb(70, 70, 70); /* track (bar color) */
+  border-radius: 4px;
+}
+
+.history-chats-list::-webkit-scrollbar-thumb {
+  background: rgb(150, 150, 150); /* thumb (the bar that shows the movement) */
+  border-radius: 4px;
+  border: 2px solid rgb(70, 70, 70);
+}
+
+.history-chats-list::-webkit-scrollbar-thumb:hover {
+  background: rgb(200, 200, 200);
+}
+
+.history-chat-link {
+  color: white;
+  margin: 0.5rem 0;
+  padding: 12px 30px;
+  font-size: 16px;
+  text-decoration: none;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column; /* stacked title and date */
+  gap: 4px;
+  transition: background-color 0.2s ease, transform 0.1s ease;
+  border-left: 4px solid transparent;
+}
+
+/* chat currently viewed */
+.history-chat-link.active {
+  background-color: rgba(255, 255, 255, 0.15);
+  border-left: 4px solid #ffffff; /* active chat indicator*/
+  font-weight: 600;
+}
+
+.history-chat-link:hover {
+  cursor: pointer;
+  background-color: rgba(255, 255, 255, 0.1);
+  color: rgb(228, 228, 228);
+}
+
+.history-chat-link:active {
+  transform: scale(0.98);
+}
+
+.chat-date {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.6);
+  font-weight: 400;
+}
+
+.close-btn {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 24px;
+  padding: 5px 12px;
+  border-radius: 50%;
+  transition: all 0.2s ease;
+  align-self: flex-end;
+}
+
+.close-btn:hover {
+  background-color: rgb(247, 74, 74);
+  color: white;
+  cursor: pointer;
+}
+
+.history-chat-link:hover {
+  cursor: pointer;
+  color: rgb(228, 228, 228);
+} */
+
 
 .overlay {
   position: fixed;
