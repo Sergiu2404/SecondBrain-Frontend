@@ -7,6 +7,7 @@ import Test from "./Test";
 import { useDispatch } from "react-redux";
 import { useEffect } from "react";
 import { fetchChats, openLatestChat } from "./state/chat/chatSlice";
+import { fetchNodes } from "./state/filesystem/fileSystemSlice";
 
 function App() {
 
@@ -15,6 +16,7 @@ function App() {
   useEffect(() => {
     dispatch(openLatestChat());
     dispatch(fetchChats());
+    dispatch(fetchNodes());
   }, [dispatch]);
 
   return (

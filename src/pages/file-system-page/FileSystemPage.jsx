@@ -1,9 +1,8 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef } from "react";
 
 import "./FileSystemPage.css";
 import FileNode from "../../components/file-node/FileNode";
 import {
-  firstLevelFiles,
   buildTree,
 } from "../../data/services/file-system/FileSystemService";
 import FIleSystemContextMenu from "../../components/context-menu/file-system/FileSystemContextMenu";
@@ -12,9 +11,13 @@ import DeleteModal from "../../components/modals/folder-modals/delete/DeleteModa
 import { useFIleSearch } from "../../helpers/hooks/useFileSearch";
 import { useFileSystemActions } from "../../helpers/hooks/useFileSystemActions";
 import SearchFileHeader from "../../components/search-files-header/SearchFileHeader";
+import { useSelector } from "react-redux";
+
+const EMPTY_ARRAY = [];
 
 const FileSystemPage = () => {
-  const [files, setFiles] = useState(firstLevelFiles);
+  // const [files, setFiles] = useState(firstLevelFiles);
+  const files = useSelector((state) => state.fileSystem.nodes) || EMPTY_ARRAY;
 
   const treeData = useMemo(() => {
     return buildTree(files);
@@ -46,7 +49,7 @@ const FileSystemPage = () => {
     handleFileSelected,
     confirmCreateFolder,
     confirmDelete,
-  } = useFileSystemActions(files, setFiles);
+  } = useFileSystemActions();
 
   // close menu at any left click
   useEffect(() => {
@@ -65,7 +68,7 @@ const FileSystemPage = () => {
         onSearch={handleSearch}
       />
 
-      <div className="file-system-container">
+      <div className="file-system-container" onContextMenu={(e) => handleRightClick(e)}>
         <ul className="root-list" style={{ padding: 0 }}>
           {treeData.map((node) => (
             <FileNode
@@ -85,13 +88,17 @@ const FileSystemPage = () => {
         }
         onAddFile={handleAddFile}
         onDelete={() => {
+          if (!menuConfig.nodeId) return;
+
           const target = files.find((f) => f.id === menuConfig.nodeId);
           setDeleteModal({
             visible: true,
             nodeId: target.id,
             nodeName: target.name,
+            isFolder: target.type == "folder" ? true : false
           });
         }}
+        isRootClick={!menuConfig.nodeId}
       />
 
       <CreateFolderModal
@@ -103,6 +110,7 @@ const FileSystemPage = () => {
       <DeleteModal
         isOpen={deleteModal.visible}
         nodeName={deleteModal.nodeName}
+        isFolder={deleteModal.isFolder}
         onCancel={() => setDeleteModal({ visible: false })}
         onConfirm={confirmDelete}
       />

@@ -10,7 +10,6 @@ import {
 export const sendMessage = createAsyncThunk(
   "chat/sendMessage",
   async ({ content, chatId }) => {
-    console.log(`content ${content}, chat id: ${chatId}`);
     const response = await sendMessageAPI(content, chatId);
     return { chatId, content: response };
   }
@@ -35,7 +34,6 @@ export const fetchChats = createAsyncThunk(
   "chat/fetchChats",
   async () => {
     const chats = await fetchChatsAPI();
-    console.log(chats);
     return { chats: chats }
   }
 );

@@ -19,7 +19,7 @@ export const NodeIcon = ({ node, isOpen }) => {
     return parts.length > 1 ? parts.pop().toLowerCase() : null;
   }
 
-  if (node.isFolder) {
+  if (node.type === "folder") {
     return (
       <>
         <span className="node-icon">

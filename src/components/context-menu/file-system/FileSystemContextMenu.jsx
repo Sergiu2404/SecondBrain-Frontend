@@ -5,6 +5,7 @@ const FIleSystemContextMenu = ({
   onAddFolder,
   onAddFile,
   onDelete,
+  isRootClick,
 }) => {
   if (!config.visible) {
     return null;
@@ -22,9 +23,11 @@ const FIleSystemContextMenu = ({
         Add File
       </div>
 
-      <div className="menu-item delete" onClick={onDelete}>
-        Delete
-      </div>
+      {!isRootClick && (
+        <div className="menu-item delete" onClick={onDelete}>
+          Delete
+        </div>
+      )}
     </div>
   );
 };

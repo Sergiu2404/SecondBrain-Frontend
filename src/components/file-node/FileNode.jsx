@@ -25,7 +25,7 @@ const FileNode = ({
   const handleToggle = (e) => {
     e.preventDefault();
     e.stopPropagation();
-    if (node.isFolder) {
+    if (node.type === "folder") {
       setIsOpen(!isOpen);
     }
   };
@@ -45,7 +45,7 @@ const FileNode = ({
           padding: "4px",
         }}
       >
-        <NodeIcon node={node} isFolder={node.isFolder} isOpen={isOpen} />
+        <NodeIcon node={node} type={node.type} isOpen={isOpen} />
         <span className="node-name">{node.name}</span>
       </div>
 
