@@ -30,13 +30,10 @@ export const fetchMessagesByChat = createAsyncThunk(
   }
 );
 
-export const fetchChats = createAsyncThunk(
-  "chat/fetchChats",
-  async () => {
-    const chats = await fetchChatsAPI();
-    return { chats: chats }
-  }
-);
+export const fetchChats = createAsyncThunk("chat/fetchChats", async () => {
+  const chats = await fetchChatsAPI();
+  return { chats: chats };
+});
 
 export const openLatestChat = createAsyncThunk(
   "chat/openLatestChat",
@@ -84,6 +81,9 @@ const chatSlice = createSlice({
         state.messagesByChat[chatId] = [];
       }
     },
+    setCurrentChatId(state, action) {
+      state.currentChatId = action.payload;
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -101,24 +101,33 @@ const chatSlice = createSlice({
         state.status = "error";
       })
       .addCase(fetchLatestChat.fulfilled, (state, action) => {
-        state.latestChat = action.payload;
-        state.currentChatId = action.payload.id;
-        state.chats[action.payload.id] = action.payload;
-      })
-      .addCase(fetchMessagesByChat.fulfilled, (state, action) => {
-        state.messagesByChat[action.payload.chatId] =
-          action.payload.messages;
+        if (action.payload) {
+          state.latestChat = action.payload;
+          state.currentChatId = action.payload.id;
+          state.chats[action.payload.id] = action.payload;
+        }
       })
       .addCase(openLatestChat.fulfilled, (state, action) => {
         const chat = action.payload;
 
-        state.latestChat = chat;
-        state.currentChatId = chat.id;
-        state.chats[chat.id] = chat;
+        if (chat) {
+          state.latestChat = chat;
+          state.currentChatId = chat.id;
+          state.chats[chat.id] = chat;
 
-        const exists = state.chatsList.find(c => c.id == chat.id);
-        if (!exists) {
-          state.chatsList.unshift(chat);
+          const exists = state.chatsList.find((c) => c.id == chat.id);
+          if (!exists) {
+            state.chatsList.unshift(chat);
+          }
+        }
+      })
+      .addCase(fetchMessagesByChat.fulfilled, (state, action) => {
+        state.messagesByChat[action.payload.chatId] = action.payload.messages;
+      })
+      .addCase(fetchMessagesByChat.pending, (state, action) => {
+        const chatId = action.meta.arg;
+        if (!state.messagesByChat[chatId]) {
+          state.messagesByChat[chatId] = [];
         }
       })
       .addCase(fetchChats.fulfilled, (state, action) => {
@@ -131,10 +140,10 @@ const chatSlice = createSlice({
           if (chat && chat.id) {
             state.chats[chat.id] = chat;
           }
-        })
-      })
+        });
+      });
   },
 });
 
-export const { addUserMessage, replaceLastMessage } = chatSlice.actions;
+export const { addUserMessage, setCurrentChatId, initChat } = chatSlice.actions;
 export default chatSlice.reducer;

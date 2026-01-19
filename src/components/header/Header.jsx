@@ -9,9 +9,7 @@ export default function Header() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  const currentChatId = useSelector(
-    (state) => state.chat.currentChatId
-  );
+  const currentChatId = useSelector((state) => state.chat.currentChatId);
 
   const chatsList = useSelector((state) => state.chat.chatsList || []);
 
@@ -24,14 +22,14 @@ export default function Header() {
     }
 
     navigate(`/chat/${currentChatId}`);
-  }
+  };
 
   const toggleSideMenu = () => {
     if (!isHistoyMenuOpen) {
       dispatch(fetchChats());
     }
     setIsHistoryMenuOpen(!isHistoyMenuOpen);
-  }
+  };
 
   const sortedChats = [...chatsList].sort(
     (a, b) => new Date(b.created_at) - new Date(a.created_at)
@@ -41,10 +39,7 @@ export default function Header() {
     <header className="header">
       <div className="header-container">
         <div className="header-left">
-          <button
-            className="menu-btn"
-            onClick={toggleSideMenu}
-          >
+          <button className="menu-btn" onClick={toggleSideMenu}>
             <GiHamburgerMenu size={24} />
           </button>
         </div>
@@ -73,19 +68,19 @@ export default function Header() {
         <h3 className="chat-history-side-menu-headline">Chat history</h3>
         <ul className="history-chats-list">
           {sortedChats.map((chat) => (
-            <li 
-            key={chat.id}
-            className={`history-chat-link ${chat.id === currentChatId ? "active" : ""}`}
-            onClick={() => {
-              navigate(`/chat/${chat.id}`);
-              setIsHistoryMenuOpen(false);
-            }}
+            <NavLink
+              key={chat.id}
+              to={`/chat/${chat.id}`}
+              className={({ isActive }) =>
+                `history-chat-link ${isActive ? "active" : ""}`
+              }
+              onClick={() => setIsHistoryMenuOpen(false)}
             >
               {chat.title || `Chat ${chat.id.substring(0, 5)}`}
               <span className="chat-date">
                 {new Date(chat.created_at).toLocaleDateString()}
               </span>
-            </li>
+            </NavLink>
           ))}
         </ul>
       </div>

@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import "./ChatPage.css";
 import { useDispatch, useSelector } from "react-redux";
-import { addUserMessage, sendMessage } from "../../state/chat/chatSlice";
+import { addUserMessage, fetchChats, fetchMessagesByChat, sendMessage, setCurrentChatId } from "../../state/chat/chatSlice";
 import { useNavigate, useParams } from "react-router-dom";
 import { createNewChat } from "../../data/services/chat/ChatService";
 
@@ -12,7 +12,7 @@ export default function ChatPage() {
 
   const dispatch = useDispatch();
   const messages = useSelector(
-    (state) => state.chat.messagesByChat[chatId] ?? []
+    (state) => (chatId ? state.chat.messagesByChat[chatId] : EMPTY_ARRAY) || EMPTY_ARRAY
   );
 
   const [input, setInput] = useState("");
@@ -32,14 +32,12 @@ export default function ChatPage() {
 
   const handleCreateNewChat = async () => {
     try {
-      const createdChat = await createNewChat();
-
-      if (!createdChat.id) {
-        console.error("Chat creation failed");
-        return;
+      const createdChat = await createNewChat(); 
+      
+      if (createdChat?.id) {
+        dispatch(fetchChats()); 
+        navigate(`/chat/${createdChat.id}`);
       }
-
-      navigate(`/chat/${createdChat.id}`);
     } catch (err) {
       console.error("Failed to create chat:", err);
     }
@@ -48,6 +46,13 @@ export default function ChatPage() {
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
+
+  useEffect(() => {
+    if (chatId) {
+      dispatch(setCurrentChatId(chatId));
+      dispatch(fetchMessagesByChat(chatId));
+    }
+  }, [chatId, dispatch]);
 
   return (
     <div className="chat-page">

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { createNode, deleteNode } from "../../state/filesystem/filesystemSlice";
+import { getPathForNode } from "../../data/services/file-system/FileSystemService";
 
 export const useFileSystemActions = () => {
   const dispatch = useDispatch();
@@ -16,7 +17,7 @@ export const useFileSystemActions = () => {
     visible: false,
     nodeId: null,
     nodeName: "",
-    isFolder: false
+    isFolder: false,
   });
   const [createModal, setCreateModal] = useState({
     visible: false,
@@ -39,17 +40,25 @@ export const useFileSystemActions = () => {
         node.parent_id === menuConfig.nodeId
     );
     if (isDuplicate) {
-      alert(`A file or folder named "${file.name}" already exists in this location.`);
+      alert(
+        `A file or folder named "${file.name}" already exists in this location.`
+      );
       e.target.value = "";
       return;
     }
 
-    dispatch(createNode({
-      name: file.name,
-      type: "file",
-      parent_id: menuConfig.nodeId,
-      fileObj: file
-    }));
+    const parentPath = getPathForNode(menuConfig.nodeId, files);
+    const fullPath = parentPath ? `${parentPath}/${file.name}` : file.name;
+
+    dispatch(
+      createNode({
+        name: file.name,
+        type: "file",
+        parent_id: menuConfig.nodeId,
+        fileObj: file,
+        path: fullPath,
+      })
+    );
 
     e.target.value = ""; // reset input
   };
@@ -67,11 +76,17 @@ export const useFileSystemActions = () => {
       return;
     }
 
-    dispatch(createNode({
-      name,
-      type: "folder",
-      parent_id: createModal.parentId
-    }))
+    const parentPath = getPathForNode(createModal.parentId, files);
+    const fullPath = parentPath ? `${parentPath}/${name}` : name;
+
+    dispatch(
+      createNode({
+        name,
+        type: "folder",
+        parent_id: createModal.parentId,
+        path: fullPath,
+      })
+    );
 
     setCreateModal({ visible: false, parentId: null });
   };
@@ -83,7 +98,12 @@ export const useFileSystemActions = () => {
       dispatch(deleteNode(idToDelete));
     }
 
-    setDeleteModal({ visible: false, nodeId: null, nodeName: "", isFolder: false });
+    setDeleteModal({
+      visible: false,
+      nodeId: null,
+      nodeName: "",
+      isFolder: false,
+    });
   };
 
   return {

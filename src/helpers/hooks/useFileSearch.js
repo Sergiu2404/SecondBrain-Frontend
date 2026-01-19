@@ -1,13 +1,13 @@
 import { useState } from "react";
 
 export const useFIleSearch = (treeData) => {
-    const [searchPath, setSearchPath] = useState("");
-    const [openPathIds, setOpenPathIds] = useState([]);
-    const [foundNodeId, setFoundNodeId] = useState(null);
+  const [searchPath, setSearchPath] = useState("");
+  const [openPathIds, setOpenPathIds] = useState([]);
+  const [foundNodeId, setFoundNodeId] = useState(null);
 
-    const [searchTrigger, setSearchTrigger] = useState(0);
+  const [searchTrigger, setSearchTrigger] = useState(0);
 
-    const handleSearch = () => {
+  const handleSearch = () => {
     const parts = searchPath.toLowerCase().split("/").filter(Boolean);
     if (parts.length < 2 || parts[0] !== "root") return;
 
@@ -33,5 +33,12 @@ export const useFIleSearch = (treeData) => {
     }
   };
 
-  return { foundNodeId, openPathIds, searchTrigger, searchPath, setSearchPath, handleSearch }
-}
+  return {
+    foundNodeId,
+    openPathIds,
+    searchTrigger,
+    searchPath,
+    setSearchPath,
+    handleSearch,
+  };
+};

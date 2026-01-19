@@ -33,6 +33,13 @@ export const buildTree = (files) => {
   return rootLevelFileNodes;
 };
 
+export const getPathForNode = (parentId, allFiles) => {
+  if (!parentId) return "";
+  
+  const parentNode = allFiles.find((f) => f.id === parentId);
+  return parentNode ? parentNode.path : "";
+};
+
 export const getRecursiveChildIds = (parentId, allFiles) => {
   const children = allFiles.filter((f) => f.parent_id === parentId);
   let ids = children.map((c) => c.id);
@@ -68,6 +75,7 @@ export const createNodeAPI = async (nodeData) => {
       const formData = new FormData();
       formData.append("name", nodeData.name);
       formData.append("type", "file");
+      formData.append("path", nodeData.path);
       if (nodeData.parent) formData.append("parent_id", nodeData.parent);
       formData.append("file", nodeData.fileObj);
 
@@ -83,6 +91,7 @@ export const createNodeAPI = async (nodeData) => {
           name: nodeData.name,
           type: "folder",
           parent_id: nodeData.parent,
+          path: nodeData.path
         }),
       });
     }
