@@ -76,8 +76,9 @@ export const createNodeAPI = async (nodeData) => {
       formData.append("name", nodeData.name);
       formData.append("type", "file");
       formData.append("path", nodeData.path);
-      if (nodeData.parent) formData.append("parent_id", nodeData.parent);
+      if (nodeData.parent_id) formData.append("parent_id", nodeData.parent_id);
       formData.append("file", nodeData.fileObj);
+      console.log(formData);
 
       response = await fetch(`${BASE_URL}/files`, {
         method: "POST",
@@ -90,7 +91,7 @@ export const createNodeAPI = async (nodeData) => {
         body: JSON.stringify({
           name: nodeData.name,
           type: "folder",
-          parent_id: nodeData.parent,
+          parent_id: nodeData.parent_id,
           path: nodeData.path
         }),
       });

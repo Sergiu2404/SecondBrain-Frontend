@@ -37,7 +37,11 @@ const FileNode = ({
       <div
         className={`file-node-label ${isHighlighted ? "found-node-highlight" : ""}`}
         onClick={handleToggle}
-        onContextMenu={(e) => onRightClick(e, node.id)}
+        onContextMenu={(e) => {
+          e.preventDefault();
+          e.stopPropagation(); // otherwise will be overriden at bubbling by parent event context menu which has nodeId undefined
+          onRightClick(e, node.id);
+        }}
         style={{
           display: "flex",
           alignItems: "center",

@@ -26,7 +26,6 @@ export const useFileSystemActions = () => {
 
   const handleRightClick = (e, nodeId) => {
     e.preventDefault();
-    e.stopPropagation();
     setMenuConfig({ visible: true, x: e.pageX, y: e.pageY, nodeId });
   };
 
