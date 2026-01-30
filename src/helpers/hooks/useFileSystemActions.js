@@ -7,6 +7,9 @@ export const useFileSystemActions = () => {
   const dispatch = useDispatch();
   const files = useSelector((state) => state.fileSystem.nodes);
 
+  const [isUploading, setIsUploading] = useState(false);
+  const [uploadTargetId, setUploadTargetId] = useState(null);
+
   const [menuConfig, setMenuConfig] = useState({
     visible: false,
     x: 0,
@@ -24,59 +27,75 @@ export const useFileSystemActions = () => {
     parentId: null,
   });
 
+  const prepareUpload = (nodeId) => {
+    setUploadTargetId(nodeId);
+  };
+
   const handleRightClick = (e, nodeId) => {
     e.preventDefault();
     setMenuConfig({ visible: true, x: e.pageX, y: e.pageY, nodeId });
   };
 
-  const handleFileSelected = (e) => {
+  const handleFileSelected = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
+
+    const currentParentId = uploadTargetId;
 
     const isDuplicate = files.some(
       (node) =>
         node.name.toLowerCase() === file.name.toLowerCase() &&
-        node.parent_id === menuConfig.nodeId
+        node.parent_id == currentParentId,
     );
+
     if (isDuplicate) {
       alert(
-        `A file or folder named "${file.name}" already exists in this location.`
+        `A file or folder named "${file.name}" already exists in this location.`,
       );
       e.target.value = "";
       return;
     }
 
-    const parentPath = getPathForNode(menuConfig.nodeId, files);
-    const fullPath = parentPath ? `${parentPath}/${file.name}` : file.name;
+    const parentPath = getPathForNode(currentParentId, files);
+    const fullPath = `${parentPath}/${file.name}`;
 
-    dispatch(
-      createNode({
-        name: file.name,
-        type: "file",
-        parent_id: menuConfig.nodeId,
-        fileObj: file,
-        path: fullPath,
-      })
-    );
-
-    e.target.value = ""; // reset input
+    setIsUploading(true);
+    try {
+      await dispatch(
+        createNode({
+          name: file.name,
+          type: "file",
+          parent_id: currentParentId,
+          fileObj: file,
+          path: fullPath,
+        }),
+      ).unwrap();
+    } catch (err) {
+      console.error("upload failed: " + err);
+    } finally {
+      setIsUploading(false);
+      setUploadTargetId(null);
+      e.target.value = ""; // reset input
+    }
   };
 
   const confirmCreateFolder = (name) => {
+    const targetParentId = createModal.parentId;
+
     const isDuplicate = files.some(
       (file) =>
         file.name.toLowerCase() === name.toLowerCase() &&
-        file.parent_id === createModal.parentId
+        file.parent_id == targetParentId,
     );
     if (isDuplicate) {
       alert(
-        `A folder or file with the name "${name}" already exists in this location.`
+        `A folder or file with the name "${name}" already exists in this location.`,
       );
       return;
     }
 
     const parentPath = getPathForNode(createModal.parentId, files);
-    const fullPath = parentPath ? `${parentPath}/${name}` : name;
+    const fullPath = `${parentPath}/${name}`;
 
     dispatch(
       createNode({
@@ -84,7 +103,7 @@ export const useFileSystemActions = () => {
         type: "folder",
         parent_id: createModal.parentId,
         path: fullPath,
-      })
+      }),
     );
 
     setCreateModal({ visible: false, parentId: null });
@@ -113,6 +132,8 @@ export const useFileSystemActions = () => {
     createModal,
     setCreateModal,
     handleRightClick,
+    isUploading,
+    prepareUpload,
     handleFileSelected,
     confirmCreateFolder,
     confirmDelete,

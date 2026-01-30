@@ -34,10 +34,11 @@ export const buildTree = (files) => {
 };
 
 export const getPathForNode = (parentId, allFiles) => {
-  if (!parentId) return "";
+  if (!parentId) return "./root";
   
   const parentNode = allFiles.find((f) => f.id === parentId);
-  return parentNode ? parentNode.path : "";
+  console.log(parentNode)
+  return parentNode ? parentNode.path : "./root";
 };
 
 export const getRecursiveChildIds = (parentId, allFiles) => {

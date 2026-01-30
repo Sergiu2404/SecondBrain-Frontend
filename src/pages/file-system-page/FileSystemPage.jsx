@@ -26,6 +26,7 @@ const FileSystemPage = () => {
   const fileInputRef = useRef(null);
 
   const handleAddFile = () => {
+    prepareUpload(menuConfig.nodeId);
     fileInputRef.current.click();
   };
 
@@ -46,6 +47,8 @@ const FileSystemPage = () => {
     createModal,
     setCreateModal,
     handleRightClick,
+    isUploading,
+    prepareUpload,
     handleFileSelected,
     confirmCreateFolder,
     confirmDelete,
@@ -61,6 +64,12 @@ const FileSystemPage = () => {
 
   return (
     <div className="file-system-page">
+      {isUploading && (
+      <div className="upload-overlay">
+        <div className="spinner"></div>
+        <p>Uploading file...</p>
+      </div>
+    )}
       <h3>Your documents</h3>
       <SearchFileHeader
         searchPath={searchPath}
